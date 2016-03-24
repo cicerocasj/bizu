@@ -1,0 +1,7 @@
+        <div class="panel-footer text-center">
+            <ul class="pagination" ng-if="model.length <= 20">
+                <li ng-click="model.get_list(page.label)" class="{[page.class]}" ng-repeat="page in model.paginator">
+                    <a href="">{[pagina.label]}</a>
+                </li>
+            </ul>
+        </div>	
