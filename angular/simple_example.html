@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div ng-app="myApp">
+    <div ng-controller="myCtrlBasic">
+        <p>myCtrlBasic</p>
+        <input ng-model="var1" type="text">{{var1}}<br>
+        <input ng-model="var2" type="text">{{var2}}<br>
+    </div>
+    <div ng-controller="myCtrlComPessoa">
+        <p>myCtrlBasicComPessoa</p>
+        <input ng-model="var1" type="text">{{var1}}<br>
+        <input ng-model="var2" type="text">{{var2}}<br>
+        <input ng-model="pessoa.nome" type="text">{{pessoa.nome}}<br>
+        <input ng-model="pessoa.idade" type="text">{{pessoa.idade}}<br>
+    </div>
+</div>
+</body>
+<script src="angular.min.js"></script>
+<script type="text/javascript">
+    var myApp = angular.module("myApp", []);
+    //se estiver trabalhando com django, é preciso substituir o {{ }} por outro modelo para nao ter conflito com django
+    //exemplo:
+    /*
+    myApp.config(function($interpolateProvider){
+        $interpolateProvider.startSymbol('{[').endSymbol(']}');
+    });
+    */
+
+    //se quiser trabalhar com model
+    myApp.factory("Pessoa", function($http){
+        var pessoa = {
+            nome: null,
+            idade: null
+        }
+        pessoa.salvar = function(){
+            var dados = {
+                nome: pessoa.nome,
+                idade: pessoa.idade
+            }
+            $http({
+                method: "POST",
+                params: dados,
+                url: "/pessoa/salvar",
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(function successCallback(response) {
+                //salvo com sucesso
+                console.log(response);
+            }, function errorCallback(response) {
+                //houve um erro no servidor
+                console.log(response);
+            });
+        }
+        return pessoa
+    });
+    myApp.controller('myCtrlBasic', function($scope) {
+        $scope.var1 = "teste 1";
+        $scope.var2 = "teste 2";
+    });
+    myApp.controller('myCtrlComPessoa', function($scope, Pessoa) {
+        $scope.var1 = "teste 1";
+        $scope.var2 = "teste 2";
+        $scope.pessoa = Pessoa;
+    });
+</script>
+</html>
