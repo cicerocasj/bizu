@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Filtro para muitos campos</title>
+    <link rel="stylesheet" href="style.css"/>
+    <script data-require="angular.js@1.1.x" src="http://code.angularjs.org/1.1.5/angular.min.js" data-semver="1.1.5">
+    </script>
+    <script type="text/javascript">
+        var app = angular.module('myApp', []);
+        app.controller('myCtrl', function ($scope) {
+            $scope.lista = [
+                {nome: "Joao pedro", idade: 21, empresa: "Empresa a"},
+                {nome: "Maria", idade: 22, empresa: "Empresa b"},
+                {nome: "Maria", idade: 23, empresa: "Empresa c"},
+                {nome: "Natalia", idade: 24, empresa: "Empresa c"},
+                {nome: "Sulita", idade: 18, empresa: "Empresa e"},
+                {nome: "Leid", idade: 17, empresa: "Empresa f"},
+                {nome: "Aparecida", idade: 16, empresa: "Empresa a"},
+                {nome: "Paulo", idade: 22, empresa: "Empresa h"}
+            ];
+            $scope.filter = {};
+            $scope.getOptionsFor = function (propName) {
+                return ($scope.lista || []).map(function (w) {
+                    return w[propName];
+                }).filter(function (w, idx, arr) {
+                    return arr.indexOf(w) === idx;
+                });
+            };
+            $scope.filterByProperties = function (item) {
+                var matchesAND = true;
+                for (var prop in $scope.filter) {
+                    if (noSubFilter($scope.filter[prop])) continue;
+                    if (!$scope.filter[prop][item[prop]]) {
+                        matchesAND = false;
+                        break;
+                    }
+                }
+                return matchesAND;
+            };
+            function noSubFilter(subFilterObj) {
+                for (var key in subFilterObj) {
+                    if (subFilterObj[key]) return false;
+                }
+                return true;
+            }
+        });
+        app.filter('capitalizeFirst', function () {
+            return function (str) {
+                str = str || '';
+                return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+            };
+        });
+    </script>
+</head>
+<body ng-app="myApp">
+    <div ng-controller="myCtrl">
+        <div style="float:left; width: 280px;">
+            <ul>
+                <li ng-repeat="(prop, ignoredValue) in lista[0]" ng-init="filter[prop]={}">
+                    <b>{{prop | capitalizeFirst}}:</b><br/>
+                    <ul>
+                        <li class="quarter" ng-repeat="opt in getOptionsFor(prop)">
+                            <b><input type="checkbox" ng-model="filter[prop][opt]"/>&nbsp;{{opt}}</b>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <uf>
+            <li ng-repeat="item in filtered=(lista | filter:filterByProperties)">
+                {{item.nome}} -- {{item.idade}} -- {{item.empresa}}
+            </li>
+        </uf>
+        Resultado: {{filtered.length}}
+    </div>
+</body>
+</html>
