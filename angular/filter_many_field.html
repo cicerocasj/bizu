@@ -9,6 +9,7 @@
     <script type="text/javascript">
         var app = angular.module('myApp', []);
         app.controller('myCtrl', function ($scope) {
+            $scope.lista_busca = ["nome", "idade"]
             $scope.lista = [
                 {nome: "Joao pedro", idade: 21, empresa: "Empresa a"},
                 {nome: "Maria", idade: 22, empresa: "Empresa b"},
@@ -57,11 +58,11 @@
     <div ng-controller="myCtrl">
         <div style="float:left; width: 280px;">
             <ul>
-                <li ng-repeat="(prop, ignoredValue) in lista[0]" ng-init="filter[prop]={}">
+                <li ng-repeat="prop in lista_busca" ng-init="filter[prop]={}">
                     <b>{{prop | capitalizeFirst}}:</b><br/>
                     <ul>
                         <li class="quarter" ng-repeat="opt in getOptionsFor(prop)">
-                            <b><input type="checkbox" ng-model="filter[prop][opt]"/>&nbsp;{{opt}}</b>
+                            <b><input type="checkbox" ng-model="filter[prop][opt]"/>{{opt}}</b>
                         </li>
                     </ul>
                 </li>
