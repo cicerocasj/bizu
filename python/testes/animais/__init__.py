@@ -1,1 +1,1 @@
-from tests_basico import *
+from basico import *
