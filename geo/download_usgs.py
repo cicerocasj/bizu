@@ -6,6 +6,7 @@ import tarfile
 import os
 import shutil
 import random
+import homura
 
 
 class Downloader(object):
@@ -38,21 +39,7 @@ class Downloader(object):
 
     def _download(self, cena, saida):
         download = "https://earthexplorer.usgs.gov/download/12864/%s/STANDARD/EE" % cena
-        r = self.sessao.get(download, stream=True)
-
-        total_size = int(r.headers.get("Content-length"))
-        progress = progressbar.ProgressBar().start()
-        bloco_size = 1024*10
-        parte = 0
-
-        with open(saida, 'wb') as fs:
-            for chunk in r.iter_content(chunk_size=bloco_size):
-                if chunk:
-                    progress.update(parte * 100. / total_size)
-                    fs.write(chunk)
-                    parte += bloco_size
-            print parte, total_size
-            progress.finish()
+        homura.download(download, saida, session=self.sessao)
 
     def download(self, cena):
         self.cena = cena
