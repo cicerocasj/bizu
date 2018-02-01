@@ -1,0 +1,92 @@
+map
+        name "meu_mapa"
+        status on
+        extent -83 -56 -30 13
+        size 512 512
+
+        config "ms_errorfile" "/tmp/error.log"
+
+        projection
+                "init=epsg:4326"
+        end
+
+        web
+                imagepath "/home/cicero/mapserver/ms_tmp/"
+                imageurl "/ms_tmp/"
+
+                metadata
+                        wms_title "Programa de Monitoramento de Queimadas"
+                        wms_online_resource "http://cicero.com.br/cgi-bin/mapserv?map=/home/cicero/mapserver/meu_mapa.map&"
+                        wms_srs "epsg:4326 epsg:3857"
+                        wms_enable_request "*"
+
+                        wms_encoding "utf-8"
+                        wms_abstract "Descricao abstrata do map"
+
+                        wms_attribution_title "Titulo do map"
+                        wms_fees "none"
+                end
+        end
+
+        # Layers
+
+        #include "layers/cidades.layer" diretorio atual com uma pasta chamada layers
+		#ou inline abaixo
+		LAYER
+			name "cidades"
+			status on
+			extent -74.0 -33.9 -28.6 5.3
+			debug 5
+
+			projection
+					"init=epsg:4326"
+			end
+
+			metadata
+					wms_title "Layer de CIdades"
+					wms_srs "epsg:4326 epsg:3857"
+			end
+
+			#include "dbcentral" sugestao colocar as 2 linhas de conexao abaixo em um arquivo e depois importa-lo
+			connectiontype postgis
+			connection "host=localhost user=cicero password=123456 dbname=database_name"
+			data "geom from (select gid,nome,st_simplify(geom, 0.0001) as geom from cidades where gid = %gid%) as cidades using srid=4326 using unique gid"
+
+			processing "CLOSE_CONNECTION=DEFER"
+			validation
+					"gid" "[0-9]"
+					"default_gid" "33"
+			end
+
+			type polygon
+
+			#estilo opcional abaixo
+			CLASS
+					NAME 'gid_america_sul'
+					EXPRESSION (([gid] IN "33,34,35,36") or ('[nome]' = 'America do Sul'))
+					STYLE
+							OUTLINECOLOR 255 0 0
+							WIDTH 2
+							ANTIALIAS TRUE
+					END
+			END
+			CLASS
+					NAME 'estilo_europa'
+					EXPRESSION (([gid] IN "50,51,52,53"))
+					STYLE
+							OUTLINECOLOR 0 0 255
+							WIDTH 2
+							ANTIALIAS TRUE
+					END
+			END
+			CLASS
+					NAME 'estilo_brasil'
+					EXPRESSION (([gid]=33))
+					STYLE
+							OUTLINECOLOR 0 255 0
+							WIDTH 2
+							ANTIALIAS TRUE
+					END
+			END
+	END # final da layer
+END # final do map
